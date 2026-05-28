@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import { AlertTriangle, X, Users, Search, Upload } from 'lucide-react';
 
-const ROLES = ['all', 'student', 'teacher', 'parent', 'admin'];
+const ROLES = ['all', 'teacher', 'parent', 'admin'];
 
 function ConfirmDialog({ message, onConfirm, onCancel }) {
   return (
@@ -42,17 +42,13 @@ function UserPanel({ user, onClose, onSave }) {
             </div>
             <div className="form-group">
               <label>Role</label>
-              <select className="select" value={form.role || 'student'} onChange={e => set('role', e.target.value)}>
-                <option value="student">Student</option>
+              <select className="select" value={form.role || 'teacher'} onChange={e => set('role', e.target.value)}>
                 <option value="teacher">Teacher</option>
                 <option value="parent">Parent</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
-            <div className="form-group">
-              <label>Grade (students only)</label>
-              <input className="input" value={form.grade || ''} onChange={e => set('grade', e.target.value)} placeholder="Grade 4" />
-            </div>
+
           </div>
         </div>
         <div className="panel-footer">
@@ -104,14 +100,16 @@ function BulkUploadModal({ onClose, addUser }) {
       const row = preview[i];
       try {
         // Map CSV fields to backend fields
+        if (row.role?.toLowerCase() === 'student') {
+          failed++;
+          continue; // Prevent student creation via CSV here
+        }
         const userPayload = {
           name: row.name,
           email: row.email,
-          role: row.role || 'student',
+          role: row.role || 'teacher',
           phone: row.phone || row.phonenumber || '',
-          studentId: row.studentid || row.studentidnumber || '',
-          department: row.department || '',
-          grade: row.grade || ''
+          department: row.department || ''
         };
         await addUser(userPayload);
         success++;
@@ -132,7 +130,7 @@ function BulkUploadModal({ onClose, addUser }) {
         
         {!results ? (
           <>
-            <p style={{ marginBottom: 16 }}>Upload a CSV file with columns: <code>name, email, role, phone, studentId</code></p>
+            <p style={{ marginBottom: 16 }}>Upload a CSV file with columns: <code>name, email, role, phone, department</code><br/><span style={{color: 'var(--error)', fontSize: 12}}>Note: Students must be added by Class Teachers.</span></p>
             
             <input type="file" accept=".csv" onChange={handleFileChange} style={{ marginBottom: 16, display: 'block' }} disabled={uploading} />
             
