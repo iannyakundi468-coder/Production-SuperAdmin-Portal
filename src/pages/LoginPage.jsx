@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
 import SomoBloomLogo from '../components/layout/SomoBloomLogo';
+import AnimatedIntro from '../components/AnimatedIntro';
 
 export default function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('');
+  const [showIntro, setShowIntro] = useState(true);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,9 @@ export default function LoginPage({ onLogin }) {
   };
 
   return (
-    <div className="login-page">
+    <>
+      {showIntro && <AnimatedIntro onComplete={() => setShowIntro(false)} />}
+      <div className="login-page" style={{ opacity: showIntro ? 0 : 1, transition: 'opacity 1s ease-in' }}>
       <div className="login-card">
 
         {/* Brand Logo */}
@@ -93,5 +97,6 @@ export default function LoginPage({ onLogin }) {
         </p>
       </div>
     </div>
+    </>
   );
 }
