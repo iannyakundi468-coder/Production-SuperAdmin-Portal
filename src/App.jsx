@@ -7,6 +7,7 @@ import UserManagement from './pages/UserManagement';
 import ClassSetup from './pages/ClassSetup';
 import FinancialOverview from './pages/FinancialOverview';
 import SystemSettings from './pages/SystemSettings';
+import Timetable from './pages/Timetable';
 
 const PAGES = {
   '/': Dashboard,
@@ -14,6 +15,7 @@ const PAGES = {
   '/classes': ClassSetup,
   '/finance': FinancialOverview,
   '/settings': SystemSettings,
+  '/timetable': Timetable,
 };
 
 function AdminApp() {
