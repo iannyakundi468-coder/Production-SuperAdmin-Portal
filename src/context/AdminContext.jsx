@@ -23,22 +23,24 @@ export function AdminProvider({ children }) {
       return null;
     }
   });
-
   const fetchData = useCallback(async () => {
     try {
-      const [usersRes, classesRes] = await Promise.all([
+      const [usersRes, classesRes, configRes] = await Promise.all([
         api.get('/admin/users'),
-        api.get('/admin/classes')
+        api.get('/admin/classes'),
+        api.get('/admin/config').catch(() => ({ config: defaultConfig }))
       ]);
       setUsers(usersRes.users || []);
       setClasses(classesRes.classes || []);
+      if (configRes && configRes.config) {
+        setConfig(configRes.config);
+      }
     } catch (err) {
       console.error('Failed to load admin data:', err);
     } finally {
       setLoading(false);
     }
   }, []);
-
   useEffect(() => {
     const token = localStorage.getItem('somobloom_token');
     if (token) {
@@ -219,10 +221,15 @@ export function AdminProvider({ children }) {
   };
 
   // ── Config actions ────────────────────────────────────
-  const updateConfig = (patch) => {
+  const updateConfig = async (patch) => {
     setConfig(prev => ({ ...prev, ...patch }));
     const key = Object.keys(patch)[0];
     pushAudit(`Updated setting "${key}" to "${patch[key]}"`);
+    try {
+      await api.put('/admin/config', patch);
+    } catch (err) {
+      console.error('Failed to save config to server:', err);
+    }
   };
 
   // ── Helpers ───────────────────────────────────────────
